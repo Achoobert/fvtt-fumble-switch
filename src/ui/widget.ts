@@ -1,5 +1,4 @@
 import { MODULE_ID, type CheatState } from '~/constants';
-import { FumbleSwitchSettingsMenu } from '~/ui/settings-menu';
 
 const STATES: CheatState[] = [ 'off', 'better', 'worse' ];
 const STATE_LABELS: Record<CheatState, string> = {
@@ -121,7 +120,9 @@ export function renderWidget(): void {
   gear.appendChild(gearIcon);
   gear.title = game.i18n.localize('FUMBLE_SWITCH.widget.diceSettings');
   gear.addEventListener('click', () => {
-    new FumbleSwitchSettingsMenu({}).render(true);
+    const sheet = (game.settings as any).sheet;
+    sheet.options.initialCategory = MODULE_ID;
+    sheet.render(true);
   });
   header.appendChild(gear);
 

@@ -8,25 +8,26 @@ function getDieType(faces: number): DieType | null {
   return validTypes.includes(key) ? key : null;
 }
 
-function applyCheat(roll: Roll): void {
-  const config = getCheatConfig();
-  if (config.state === 'off') return;
+export function patchRollEvaluate(): void {
+  // Patch Die.prototype.roll to modify results BEFORE system post-processing
+  const dieProto = foundry.dice.terms.Die.prototype as any;
+  const originalRoll = dieProto.roll;
 
-  let cheated = false;
+  dieProto.roll = async function patchedRoll(this: any, options?: any): Promise<any> {
+    const result = await originalRoll.call(this, options);
 
-  roll.terms.forEach((term) => {
-    if (!(term instanceof foundry.dice.terms.DiceTerm)) return;
+    const config = getCheatConfig();
+    if (config.state === 'off') return result;
 
-    const { faces } = term;
-    if (!faces) return;
+    const { faces } = this;
+    if (!faces) return result;
 
     const dieType = getDieType(faces);
-    if (!dieType || !isDieAffected(dieType)) return;
+    if (!dieType || !isDieAffected(dieType)) return result;
 
     const positiveDirection = getPositiveDirection(dieType);
-
     const direction = resolveDirection(config.state, positiveDirection);
-    if (!direction) return;
+    if (!direction) return result;
 
     const context: StrategyContext = {
       direction,
@@ -35,41 +36,33 @@ function applyCheat(roll: Roll): void {
       thresholdPercent: config.thresholdPercent,
     };
 
-    applyStrategy(config.strategy, term.results as DieResult[], context);
-    cheated = true;
-  });
+    // Wrap single result in array for strategy functions (they mutate in place)
+    const wrapper: DieResult[] = [ result ];
+    applyStrategy(config.strategy, wrapper, context);
 
-  if (cheated) {
-    // Recalculate total directly from modified term results
-    // Can't rely on _evaluateTotal() as it may read from cached state
-    let total = 0;
-    let operator = '+';
-    roll.terms.forEach((term) => {
-      if (term instanceof foundry.dice.terms.OperatorTerm) {
-        operator = (term as any).operator;
-      } else {
-        const termTotal = Number((term as any).total) || 0;
-        total = operator === '-' ? total - termTotal : total + termTotal;
-        operator = '+';
-      }
-    });
-    (roll as any)._total = total;
+    // Mark this die term as cheated for explicit mode detection
+    this._fumbleSwitchCheated = true;
+    this._fumbleSwitchDirection = config.state;
 
-    if (config.explicitMode) {
-      // Store in roll.options so it survives JSON serialization
-      (roll as any).options.fumbleSwitchCheated = true;
-      (roll as any).options.fumbleSwitchDirection = config.state;
-    }
-  }
-}
+    return result;
+  };
 
-export function patchRollEvaluate(): void {
-  const proto = Roll.prototype as any;
-  const originalEvaluate = proto.evaluate;
+  // Lightweight Roll.evaluate patch for explicit mode flagging
+  const rollProto = Roll.prototype as any;
+  const originalEvaluate = rollProto.evaluate;
 
-  proto.evaluate = async function patchedEvaluate(this: Roll, options?: any): Promise<Roll> {
+  rollProto.evaluate = async function patchedEvaluate(this: Roll, options?: any): Promise<Roll> {
     const result = await originalEvaluate.call(this, options);
-    applyCheat(result);
+
+    const config = getCheatConfig();
+    if (!config.explicitMode) return result;
+
+    const cheated = result.terms.some((term: any) => term._fumbleSwitchCheated);
+    if (cheated) {
+      (result as any).options.fumbleSwitchCheated = true;
+      (result as any).options.fumbleSwitchDirection = config.state;
+    }
+
     return result;
   };
 }

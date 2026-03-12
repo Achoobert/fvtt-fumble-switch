@@ -18,8 +18,11 @@ export interface StrategyContext {
   thresholdPercent: number;
 }
 
-export function resolveDirection(state: CheatState, _positiveDirection: PositiveDirection): CheatDirection | null {
+export function resolveDirection(state: CheatState, positiveDirection: PositiveDirection): CheatDirection | null {
   if (state === 'off') return null;
+  if (positiveDirection === 'lower') {
+    return state === 'better' ? 'worse' : 'better';
+  }
   return state;
 }
 
