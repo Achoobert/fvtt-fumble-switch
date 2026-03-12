@@ -1,0 +1,120 @@
+.fumble-switch {
+  position: fixed;
+  z-index: 1000;
+  min-width: 200px;
+  background: #1a1a2e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  font-family: 'Signika', sans-serif;
+  color: #ccc;
+  transition: border-color 0.3s, box-shadow 0.3s;
+
+  &--off {
+    border-color: #444;
+  }
+
+  &--better {
+    border-color: #2ecc71;
+    box-shadow: 0 0 12px rgba(46, 204, 113, 0.3);
+  }
+
+  &--worse {
+    border-color: #e74c3c;
+    box-shadow: 0 0 12px rgba(231, 76, 60, 0.3);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #333;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &__title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #eee;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__gear {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 2px 4px;
+    font-size: 12px;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #eee;
+    }
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 4px 0;
+  }
+
+  &__label {
+    font-size: 11px;
+    color: #999;
+    min-width: 50px;
+  }
+
+  &__buttons {
+    display: flex;
+    gap: 2px;
+  }
+
+  &__btn {
+    padding: 3px 8px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #2a2a3e;
+    color: #999;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #3a3a4e;
+      color: #eee;
+    }
+
+    &--active {
+      color: #fff;
+      font-weight: bold;
+
+      &.fumble-switch__btn--off {
+        background: #555;
+        border-color: #777;
+      }
+
+      &.fumble-switch__btn--better {
+        background: #27ae60;
+        border-color: #2ecc71;
+        box-shadow: 0 0 6px rgba(46, 204, 113, 0.4);
+      }
+
+      &.fumble-switch__btn--worse {
+        background: #c0392b;
+        border-color: #e74c3c;
+        box-shadow: 0 0 6px rgba(231, 76, 60, 0.4);
+      }
+    }
+  }
+}

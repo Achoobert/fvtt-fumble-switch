@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import fs from 'fs-extra';
 import path from 'path';
 
 export default defineConfig({
@@ -16,4 +17,14 @@ export default defineConfig({
       '~': path.resolve(__dirname, 'src'),
     },
   },
+  plugins: [
+    {
+      name: 'copy-static-files',
+      closeBundle: async () => {
+        await fs.copy('src/module.json', 'dist/module.json');
+        await fs.copy('src/lang', 'dist/lang');
+        await fs.copy('src/templates', 'dist/templates');
+      },
+    },
+  ],
 });

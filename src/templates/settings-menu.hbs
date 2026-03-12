@@ -1,0 +1,28 @@
+<form>
+  <p class="notes">{{localize "FUMBLE_SWITCH.settingsMenu.notes"}} <strong>{{globalDirection}}</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>{{localize "FUMBLE_SWITCH.settingsMenu.die"}}</th>
+        <th>{{localize "FUMBLE_SWITCH.settingsMenu.enabled"}}</th>
+        <th>{{localize "FUMBLE_SWITCH.settingsMenu.direction"}}</th>
+        <th>{{localize "FUMBLE_SWITCH.settingsMenu.nudgeValue"}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each dice}}
+      <tr>
+        <td><strong>{{die}}</strong></td>
+        <td><input type="checkbox" name="affected-{{die}}" {{#if affected}}checked{{/if}} /></td>
+        <td>
+          <select name="direction-{{die}}">
+            <option value="higher" {{#if (eq direction "higher")}}selected{{/if}}>{{localize "FUMBLE_SWITCH.settingsMenu.higher"}}</option>
+            <option value="lower" {{#if (eq direction "lower")}}selected{{/if}}>{{localize "FUMBLE_SWITCH.settingsMenu.lower"}}</option>
+          </select>
+        </td>
+        <td><input type="number" name="nudge-{{die}}" value="{{nudgeValue}}" min="0" style="width: 50px;" /></td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</form>
