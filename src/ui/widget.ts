@@ -120,9 +120,7 @@ export function renderWidget(): void {
   gear.appendChild(gearIcon);
   gear.title = game.i18n.localize('FUMBLE_SWITCH.widget.diceSettings');
   gear.addEventListener('click', () => {
-    const sheet = (game.settings as any).sheet;
-    sheet.options.initialCategory = MODULE_ID;
-    sheet.render(true);
+    new (foundry.applications.settings.SettingsConfig as any)({ initialCategory: MODULE_ID }).render(true);
   });
   header.appendChild(gear);
 
