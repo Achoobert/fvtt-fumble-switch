@@ -40,11 +40,25 @@ function applyCheat(roll: Roll): void {
   });
 
   if (cheated) {
-    (roll as any)._total = (roll as any)._evaluateTotal();
+    // Recalculate total directly from modified term results
+    // Can't rely on _evaluateTotal() as it may read from cached state
+    let total = 0;
+    let operator = '+';
+    roll.terms.forEach((term) => {
+      if (term instanceof foundry.dice.terms.OperatorTerm) {
+        operator = (term as any).operator;
+      } else {
+        const termTotal = Number((term as any).total) || 0;
+        total = operator === '-' ? total - termTotal : total + termTotal;
+        operator = '+';
+      }
+    });
+    (roll as any)._total = total;
 
     if (config.explicitMode) {
-      (roll as any)._fumbleSwitchCheated = true;
-      (roll as any)._fumbleSwitchDirection = config.state;
+      // Store in roll.options so it survives JSON serialization
+      (roll as any).options.fumbleSwitchCheated = true;
+      (roll as any).options.fumbleSwitchDirection = config.state;
     }
   }
 }

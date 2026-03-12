@@ -1,4 +1,5 @@
 import { MODULE_ID, type CheatState } from '~/constants';
+import { FumbleSwitchSettingsMenu } from '~/ui/settings-menu';
 
 const STATES: CheatState[] = [ 'off', 'better', 'worse' ];
 const STATE_LABELS: Record<CheatState, string> = {
@@ -11,14 +12,23 @@ const s = () => game.settings! as any;
 
 let widget: HTMLDivElement;
 
+// Track states locally for immediate UI updates (settings save is async for world-scope)
+const localState: Record<string, CheatState> = {
+  cheatStatePlayers: 'off',
+  cheatStateGm: 'off',
+};
+
 function getWidgetStateClass(): string {
-  const players = s().get(MODULE_ID, 'cheatStatePlayers') as CheatState;
-  const gm = s().get(MODULE_ID, 'cheatStateGm') as CheatState;
+  const { cheatStatePlayers: players, cheatStateGm: gm } = localState;
   if (players !== 'off' || gm !== 'off') {
     const activeState = players !== 'off' ? players : gm;
     return `fumble-switch--${activeState}`;
   }
   return 'fumble-switch--off';
+}
+
+function updateWidgetClass(): void {
+  widget.className = `fumble-switch ${getWidgetStateClass()}`;
 }
 
 function createToggleRow(label: string, settingKey: string, currentState: CheatState): HTMLDivElement {
@@ -40,10 +50,11 @@ function createToggleRow(label: string, settingKey: string, currentState: CheatS
     btn.textContent = STATE_LABELS[state];
     btn.title = state.charAt(0).toUpperCase() + state.slice(1);
     btn.addEventListener('click', () => {
+      localState[settingKey] = state;
       s().set(MODULE_ID, settingKey, state);
       buttons.querySelectorAll('.fumble-switch__btn').forEach((b) => b.classList.remove('fumble-switch__btn--active'));
       btn.classList.add('fumble-switch__btn--active');
-      widget.className = `fumble-switch ${getWidgetStateClass()}`;
+      updateWidgetClass();
     });
     buttons.appendChild(btn);
   });
@@ -83,6 +94,10 @@ function makeDraggable(element: HTMLElement, handle: HTMLElement): void {
 export function renderWidget(): void {
   if (!game.user?.isGM) return;
 
+  // Initialize local state from settings
+  localState.cheatStatePlayers = s().get(MODULE_ID, 'cheatStatePlayers') as CheatState;
+  localState.cheatStateGm = s().get(MODULE_ID, 'cheatStateGm') as CheatState;
+
   widget = document.createElement('div');
   widget.classList.add('fumble-switch', getWidgetStateClass());
 
@@ -106,19 +121,23 @@ export function renderWidget(): void {
   gear.appendChild(gearIcon);
   gear.title = game.i18n.localize('FUMBLE_SWITCH.widget.diceSettings');
   gear.addEventListener('click', () => {
-    // Will be wired to settings menu in Task 8
-    s().sheet?.render(true);
+    new FumbleSwitchSettingsMenu({}).render(true);
   });
   header.appendChild(gear);
 
   widget.appendChild(header);
 
   // Toggle rows
-  const playersState = s().get(MODULE_ID, 'cheatStatePlayers') as CheatState;
-  const gmState = s().get(MODULE_ID, 'cheatStateGm') as CheatState;
-
-  widget.appendChild(createToggleRow(game.i18n.localize('FUMBLE_SWITCH.widget.players'), 'cheatStatePlayers', playersState));
-  widget.appendChild(createToggleRow(game.i18n.localize('FUMBLE_SWITCH.widget.gm'), 'cheatStateGm', gmState));
+  widget.appendChild(createToggleRow(
+    game.i18n.localize('FUMBLE_SWITCH.widget.players'),
+    'cheatStatePlayers',
+    localState.cheatStatePlayers,
+  ));
+  widget.appendChild(createToggleRow(
+    game.i18n.localize('FUMBLE_SWITCH.widget.gm'),
+    'cheatStateGm',
+    localState.cheatStateGm,
+  ));
 
   makeDraggable(widget, header);
   document.body.appendChild(widget);

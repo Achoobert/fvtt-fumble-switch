@@ -23,7 +23,7 @@ Hooks.on('createChatMessage', (message: ChatMessage) => {
   const { rolls } = message;
   if (!rolls?.length) return;
 
-  const cheatedRoll = rolls.find((r: any) => r._fumbleSwitchCheated);
+  const cheatedRoll = rolls.find((r: any) => r.options?.fumbleSwitchCheated);
   if (!cheatedRoll) return;
 
   (ChatMessage as any).create({

@@ -33,10 +33,10 @@ export function initDiceSoNice(): void {
     const { rolls } = message;
     if (!rolls?.length) return;
 
-    const cheatedRoll = rolls.find((r: any) => r._fumbleSwitchCheated);
+    const cheatedRoll = rolls.find((r: any) => r.options?.fumbleSwitchCheated);
     if (!cheatedRoll) return;
 
-    const direction = cheatedRoll._fumbleSwitchDirection as CheatState;
+    const direction = cheatedRoll.options.fumbleSwitchDirection as CheatState;
     const colors = CHEAT_COLORS[direction];
     if (!colors) return;
 
