@@ -7,7 +7,7 @@ const STATE_LABELS: Record<CheatState, string> = {
   worse: '\u25BC',
 };
 
-const s = () => game.settings! as any;
+const s = () => game.settings!;
 
 let widget: HTMLDivElement;
 
@@ -30,7 +30,9 @@ function updateWidgetClass(): void {
   widget.className = `fumble-switch ${getWidgetStateClass()}`;
 }
 
-function createToggleRow(label: string, settingKey: string, currentState: CheatState): HTMLDivElement {
+type CheatStateKey = 'cheatStatePlayers' | 'cheatStateGm';
+
+function createToggleRow(label: string, settingKey: CheatStateKey, currentState: CheatState): HTMLDivElement {
   const row = document.createElement('div');
   row.classList.add('fumble-switch__row');
 
@@ -50,6 +52,7 @@ function createToggleRow(label: string, settingKey: string, currentState: CheatS
     btn.title = state.charAt(0).toUpperCase() + state.slice(1);
     btn.addEventListener('click', () => {
       localState[settingKey] = state;
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       s().set(MODULE_ID, settingKey, state);
       buttons.querySelectorAll('.fumble-switch__btn').forEach((b) => b.classList.remove('fumble-switch__btn--active'));
       btn.classList.add('fumble-switch__btn--active');
@@ -83,6 +86,7 @@ function makeDraggable(element: HTMLElement, handle: HTMLElement): void {
   document.addEventListener('mouseup', () => {
     if (!isDragging) return;
     isDragging = false;
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     s().set(MODULE_ID, 'widgetPosition', {
       top: element.offsetTop,
       left: element.offsetLeft,
@@ -120,7 +124,8 @@ export function renderWidget(): void {
   gear.appendChild(gearIcon);
   gear.title = game.i18n.localize('FUMBLE_SWITCH.widget.diceSettings');
   gear.addEventListener('click', () => {
-    new (foundry.applications.settings.SettingsConfig as any)({ initialCategory: MODULE_ID }).render(true);
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    new foundry.applications.settings.SettingsConfig({ initialCategory: MODULE_ID }).render(true);
   });
   header.appendChild(gear);
 

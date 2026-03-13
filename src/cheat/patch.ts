@@ -10,10 +10,13 @@ function getDieType(faces: number): DieType | null {
 
 export function patchRollEvaluate(): void {
   // Patch Die.prototype.roll to modify results BEFORE system post-processing
-  const dieProto = foundry.dice.terms.Die.prototype as any;
-  const originalRoll = dieProto.roll;
+  const dieProto = foundry.dice.terms.Die.prototype as FumbleSwitchDie;
+  const originalRoll = dieProto.roll.bind(dieProto);
 
-  dieProto.roll = async function patchedRoll(this: any, options?: any): Promise<any> {
+  type DieEvalOptions = Partial<foundry.dice.terms.DiceTerm.EvaluationOptions>;
+  type DieRollResult = foundry.dice.terms.DiceTerm.Result;
+
+  dieProto.roll = async function patchedRoll(this: FumbleSwitchDie, options?: DieEvalOptions): Promise<DieRollResult> {
     const result = await originalRoll.call(this, options);
 
     const config = getCheatConfig();
@@ -37,7 +40,7 @@ export function patchRollEvaluate(): void {
     };
 
     // Wrap single result in array for strategy functions (they mutate in place)
-    const wrapper: DieResult[] = [ result ];
+    const wrapper: DieResult[] = [ result as DieResult ];
     applyStrategy(config.strategy, wrapper, context);
 
     // Mark this die term as cheated for explicit mode detection
@@ -48,19 +51,20 @@ export function patchRollEvaluate(): void {
   };
 
   // Lightweight Roll.evaluate patch for explicit mode flagging
-  const rollProto = Roll.prototype as any;
-  const originalEvaluate = rollProto.evaluate;
+  const rollProto = Roll.prototype;
+  const originalEvaluate = rollProto.evaluate.bind(rollProto);
+  type EvaluatedRoll = Roll.Evaluated<Roll>;
 
-  rollProto.evaluate = async function patchedEvaluate(this: Roll, options?: any): Promise<Roll> {
+  rollProto.evaluate = async function patchedEvaluate(this: Roll, options?: Roll.Options): Promise<EvaluatedRoll> {
     const result = await originalEvaluate.call(this, options);
 
     const config = getCheatConfig();
     if (!config.explicitMode) return result;
 
-    const cheated = result.terms.some((term: any) => term._fumbleSwitchCheated);
+    const cheated = result.terms.some((term) => (term as FumbleSwitchDie)._fumbleSwitchCheated);
     if (cheated) {
-      (result as any).options.fumbleSwitchCheated = true;
-      (result as any).options.fumbleSwitchDirection = config.state;
+      (result.options as FumbleSwitchRollOptions).fumbleSwitchCheated = true;
+      (result.options as FumbleSwitchRollOptions).fumbleSwitchDirection = config.state;
     }
 
     return result;

@@ -1,8 +1,8 @@
 import {
-  MODULE_ID, DIE_TYPES, DEFAULT_NUDGE_VALUES, DEFAULT_AFFECTED_DICE, type DieType, type PositiveDirection,
+  MODULE_ID, DIE_TYPES, DEFAULT_NUDGE_VALUES, DEFAULT_AFFECTED_DICE, type PositiveDirection,
 } from '~/constants';
 
-const s = () => game.settings! as any;
+const s = () => game.settings!;
 
 export class FumbleSwitchSettingsMenu extends foundry.appv1.api.FormApplication {
   public static get defaultOptions() {
@@ -16,10 +16,10 @@ export class FumbleSwitchSettingsMenu extends foundry.appv1.api.FormApplication 
   }
 
   public getData() {
-    const nudgeValues = s().get(MODULE_ID, 'nudgeValues') as Record<DieType, number>;
-    const affectedDice = s().get(MODULE_ID, 'affectedDice') as Record<DieType, boolean>;
-    const positiveDirection = s().get(MODULE_ID, 'positiveDirection') as PositiveDirection;
-    const overrides = s().get(MODULE_ID, 'positiveDirectionOverrides') as Record<string, PositiveDirection>;
+    const nudgeValues = s().get(MODULE_ID, 'nudgeValues');
+    const affectedDice = s().get(MODULE_ID, 'affectedDice');
+    const positiveDirection = s().get(MODULE_ID, 'positiveDirection');
+    const overrides = s().get(MODULE_ID, 'positiveDirectionOverrides');
 
     const dice = DIE_TYPES.map((die) => ({
       die,

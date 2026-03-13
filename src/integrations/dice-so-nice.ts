@@ -1,6 +1,6 @@
 import { MODULE_ID, type CheatState } from '~/constants';
 
-type DsnHookFn = (messageId: string, context: Record<string, any>) => void;
+type DsnHookFn = (messageId: string, context: Record<string, unknown>) => void;
 const onDsnHook = (hook: string, fn: DsnHookFn) => (Hooks.on as (hook: string, fn: DsnHookFn) => number)(hook, fn);
 
 interface DiceColors { colorset: string; foreground: string; background: string; outline: string; edge: string }
@@ -23,24 +23,24 @@ const CHEAT_COLORS: Record<string, DiceColors> = {
 };
 
 export function initDiceSoNice(): void {
-  const dsn = (game.modules as any)?.get('dice-so-nice');
+  const dsn = game.modules?.get('dice-so-nice');
   if (!dsn?.active) return;
 
   onDsnHook('diceSoNiceRollStart', (messageId, context) => {
-    const message = (game.messages as any)?.get(messageId);
+    const message = game.messages?.get(messageId);
     if (!message) return;
 
     const { rolls } = message;
     if (!rolls?.length) return;
 
-    const cheatedRoll = rolls.find((r: any) => r.options?.fumbleSwitchCheated);
+    const cheatedRoll = rolls.find((r) => (r.options as FumbleSwitchRollOptions)?.fumbleSwitchCheated);
     if (!cheatedRoll) return;
 
-    const direction = cheatedRoll.options.fumbleSwitchDirection as CheatState;
+    const direction = (cheatedRoll.options as FumbleSwitchRollOptions).fumbleSwitchDirection as CheatState;
     const colors = CHEAT_COLORS[direction];
     if (!colors) return;
 
-    const explicitMode = (game.settings! as any).get(MODULE_ID, 'explicitMode') as boolean;
+    const explicitMode = game.settings!.get(MODULE_ID, 'explicitMode');
     const isGm = game.user?.isGM ?? false;
 
     if (!explicitMode && !isGm) return;

@@ -17,16 +17,17 @@ Hooks.once('ready', () => {
 
 Hooks.on('createChatMessage', (message: ChatMessage) => {
   if (!game.user?.isGM) return;
-  const explicitMode = (game.settings as any).get(MODULE_ID, 'explicitMode');
+  const explicitMode = game.settings.get(MODULE_ID, 'explicitMode');
   if (!explicitMode) return;
 
   const { rolls } = message;
   if (!rolls?.length) return;
 
-  const cheatedRoll = rolls.find((r: any) => r.options?.fumbleSwitchCheated);
+  const cheatedRoll = rolls.find((r) => (r.options as FumbleSwitchRollOptions)?.fumbleSwitchCheated);
   if (!cheatedRoll) return;
 
-  (ChatMessage as any).create({
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  ChatMessage.create({
     content: `<em>${game.i18n.localize('FUMBLE_SWITCH.explicit.message')}</em>`,
     speaker: { alias: game.i18n.localize('FUMBLE_SWITCH.explicit.speaker') },
   });

@@ -1,7 +1,7 @@
 import { MODULE_ID, DEFAULT_NUDGE_VALUES, DEFAULT_AFFECTED_DICE } from '~/constants';
 import { FumbleSwitchSettingsMenu } from '~/ui/settings-menu';
 
-const s = () => game.settings! as any;
+const s = () => game.settings!;
 
 export function registerSettings(): void {
   s().register(MODULE_ID, 'cheatStrategy', {
