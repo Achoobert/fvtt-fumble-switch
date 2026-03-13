@@ -1,52 +1,51 @@
 import { MODULE_ID, type CheatState } from '~/constants';
 
-type DsnHookFn = (messageId: string, context: Record<string, unknown>) => void;
-const onDsnHook = (hook: string, fn: DsnHookFn) => (Hooks.on as (hook: string, fn: DsnHookFn) => number)(hook, fn);
+interface DsnRollStartContext {
+  roll: Roll;
+  user: User;
+  users: string[] | null;
+  blind: boolean;
+}
 
-interface DiceColors { colorset: string; foreground: string; background: string; outline: string; edge: string }
-
-const CHEAT_COLORS: Record<string, DiceColors> = {
+const CHEAT_COLORS: Record<string, DsnAppearance> = {
   better: {
     colorset: 'custom',
-    foreground: '#ffffff',
-    background: '#27ae60',
-    outline: '#2ecc71',
-    edge: '#1e8449',
+    labelColor: '#ffffff',
+    diceColor: '#27ae60',
+    outlineColor: '#2ecc71',
+    edgeColor: '#1e8449',
   },
   worse: {
     colorset: 'custom',
-    foreground: '#ffffff',
-    background: '#c0392b',
-    outline: '#e74c3c',
-    edge: '#922b21',
+    labelColor: '#ffffff',
+    diceColor: '#c0392b',
+    outlineColor: '#e74c3c',
+    edgeColor: '#922b21',
   },
 };
+
+function onDsnRollStart(_messageId: string, context: DsnRollStartContext): void {
+  const { roll } = context;
+  if (!roll) return;
+
+  const opts = roll.options as FumbleSwitchRollOptions;
+  if (!opts?.fumbleSwitchCheated) return;
+
+  const direction = opts.fumbleSwitchDirection as CheatState;
+  const colors = CHEAT_COLORS[direction];
+  if (!colors) return;
+
+  const explicitMode = game.settings!.get(MODULE_ID, 'explicitMode');
+  const isGm = game.user?.isGM ?? false;
+
+  if (!explicitMode && !isGm) return;
+
+  (roll.options as FumbleSwitchRollOptions).appearance = colors;
+}
 
 export function initDiceSoNice(): void {
   const dsn = game.modules?.get('dice-so-nice');
   if (!dsn?.active) return;
 
-  onDsnHook('diceSoNiceRollStart', (messageId, context) => {
-    const message = game.messages?.get(messageId);
-    if (!message) return;
-
-    const { rolls } = message;
-    if (!rolls?.length) return;
-
-    const cheatedRoll = rolls.find((r) => (r.options as FumbleSwitchRollOptions)?.fumbleSwitchCheated);
-    if (!cheatedRoll) return;
-
-    const direction = (cheatedRoll.options as FumbleSwitchRollOptions).fumbleSwitchDirection as CheatState;
-    const colors = CHEAT_COLORS[direction];
-    if (!colors) return;
-
-    const explicitMode = game.settings!.get(MODULE_ID, 'explicitMode');
-    const isGm = game.user?.isGM ?? false;
-
-    if (!explicitMode && !isGm) return;
-
-    if (context.appearance) {
-      Object.assign(context.appearance, colors);
-    }
-  });
+  (Hooks.on as (hook: string, fn: typeof onDsnRollStart) => number)('diceSoNiceRollStart', onDsnRollStart);
 }

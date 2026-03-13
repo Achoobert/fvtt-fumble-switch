@@ -19,8 +19,17 @@ declare global {
     _fumbleSwitchDirection?: CheatState;
   }
 
+  interface DsnAppearance {
+    colorset: string;
+    labelColor: string;
+    diceColor: string;
+    outlineColor: string;
+    edgeColor: string;
+  }
+
   interface FumbleSwitchRollOptions extends Roll.Options {
     fumbleSwitchCheated?: boolean;
     fumbleSwitchDirection?: CheatState;
+    appearance?: DsnAppearance;
   }
 }
