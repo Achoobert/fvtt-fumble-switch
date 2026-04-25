@@ -1,106 +1,96 @@
 name: Release
+# GitHub Actions workflow for creating a new FoundryVTT module release.
+#
+# Useful References:
+#   - https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+#   - https://docs.github.com/en/actions/learn-github-actions/contexts
+#   - https://docs.github.com/en/actions/learn-github-actions/environment-variables
+#
+# Troubleshooting Checklist:
+#   - Is the module's manifest file valid JSON?
+#     You can test your manifest file using https://jsonlint.com/.
+#
+#   - Does the module's manifest have all the required keys?
+#     See https://foundryvtt.com/article/module-development/#manifest for more
+#     information.
+#
+#   - Are all the proper files and directories being included in the release's
+#     module archive ("module.zip")?
+#     Check that the correct files are being passed to the `zip` command run
+#     in the "Create Module Archive" step below.
+#
+#   - Is the release tag the proper format?
+#     See the comments for the "Extract Version From Tag" step below.
+#
+#   - Is a GitHub release being published?
+#     This workflow will only run when a release is published, not when a
+#     release is updated. Furthermore, note that while a GitHub release will
+#     (by default) create a repository tag, a repository tag will not create
+#     or publish a GitHub release.
+#
+#   - Has the module's entry on FoundryVTT's module administration site
+#     (https://foundryvtt.com/admin) been updated?
+#
 
 on:
   push:
-    tags:
-      - "*"
+    branches:
+      - main
+      - master
+  workflow_dispatch:
 
 jobs:
-  release:
-    if: startsWith(github.ref, 'refs/tags/')
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Install Dependencies
+        run: |
+          npm install
+      - name: Build Module
+        run: |
+          npm run build
+
+      - name: Get Version from module.json
+        id: get_version_from_manifest
+        run: |
+          version=$(jq -r .version dist/module.json)
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "tag=v$version" >> $GITHUB_OUTPUT
+
+      - name: Modify Module Manifest With Release-Specific Values
+        id: sub_manifest_link_version
+        uses: cschleiden/replace-tokens@v1.3
         with:
-          ref: main
-
-      - name: Setup Nodejs
-        uses: actions/setup-node@v3
-        with:
-          node-version: "22"
-
-      - name: Get tag
-        id: tag
-        uses: dawidd6/action-get-tag@v1.1.0
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Bump Version
+          files: 'dist/module.json'
         env:
-          TAG: ${{ steps.tag.outputs.tag }}
-        run: npm run bump-version "$TAG"
+          VERSION: ${{ steps.get_version_from_manifest.outputs.version }}
+          URL: ${{ github.server_url }}/${{ github.repository }}
+          MANIFEST: ${{ github.server_url }}/${{ github.repository }}/releases/latest/download/module.json
+          DOWNLOAD: ${{ github.server_url }}/${{ github.repository }}/releases/download/v${{ steps.get_version_from_manifest.outputs.version }}/module.zip
 
-      - name: Commit Bumped Version
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: 'package.json package-lock.json src/module.json'
-          message: 'Bump version to ${{ steps.tag.outputs.tag }}'
-          pathspec_error_handling: exitImmediately
+      - name: Prepare Module Directory
+        run: |
+          mkdir -p ./fumble-switch
+          [ -d dist ] && cp -r dist ./fumble-switch/
 
-      - name: Build
-        run: npm run build
+      - name: Create Module Archive
+        run: |
+          cd ./fumble-switch
+          zip --recurse-paths ../module.zip ./*
+          cd ..
 
-      - name: Get Module ID
-        id: moduleID
-        uses: notiz-dev/github-action-json-property@release
-        with:
-          path: './dist/module.json'
-          prop_path: 'id'
-
-      - name: Get mininum
-        id: minimum
-        uses: notiz-dev/github-action-json-property@release
-        with:
-          path: './dist/module.json'
-          prop_path: 'compatibility.minimum'
-
-      - name: Get verified
-        id: verified
-        uses: notiz-dev/github-action-json-property@release
-        with:
-          path: './dist/module.json'
-          prop_path: 'compatibility.verified'
-
-      - name: Set Download Link
-        uses: jossef/action-set-json-field@v2
-        with:
-          file: './dist/module.json'
-          field: 'download'
-          value: "https://github.com/${{github.repository}}/releases/download/${{steps.tag.outputs.tag}}/${{steps.moduleID.outputs.prop}}.zip"
-
-      - name: Set Manifest Link
-        uses: jossef/action-set-json-field@v2
-        with:
-          file: './dist/module.json'
-          field: 'manifest'
-          value: "https://github.com/${{github.repository}}/releases/download/${{steps.tag.outputs.tag}}/module.json"
-
-      - name: Create ZIP
-        working-directory: ./dist
-        env:
-          MODULE_ID: ${{ steps.moduleID.outputs.prop }}
-        run: zip -r "./$MODULE_ID.zip" ./*
-
-      - name: Create Release
-        uses: ncipollo/release-action@v1.9.0
+      - name: Create or Update Release
+        uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          omitBodyDuringUpdate: true
+          name: v${{ steps.get_version_from_manifest.outputs.version }}
+          tag: v${{ steps.get_version_from_manifest.outputs.version }}
+          artifacts: './module.json, ./module.zip'
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ github.event.release.name }}
-          draft: ${{ github.event.release.unpublished }}
-          prerelease: ${{ github.event.release.prerelease }}
-          tag: ${{ github.event.release.tag_name }}
-          body: ${{ github.event.release.body }}
-          artifacts: "./dist/module.json, ./dist/${{steps.moduleID.outputs.prop}}.zip"
 
-      - name: Publish to Foundry Repository
-        uses: fjogeleit/http-request-action@v1
-        with:
-          url: 'https://api.foundryvtt.com/_api/packages/release_version'
-          method: 'POST'
-          customHeaders: '{"Content-Type": "application/json", "Authorization" : "${{ secrets.FOUNDRY_KEY }}"}'
-          data: '{"dry_run": false, "id": "${{steps.moduleID.outputs.prop}}", "release": {"version":  "${{steps.tag.outputs.tag}}", "manifest": "https://github.com/${{github.repository}}/releases/download/${{steps.tag.outputs.tag}}/module.json", "notes": "https://github.com/${{github.repository}}/releases/tag/${{steps.tag.outputs.tag}}", "compatibility" : {"minimum": "${{steps.minimum.outputs.prop}}", "verified": "${{steps.verified.outputs.prop}}"}}}'
-          timeout: 20000
