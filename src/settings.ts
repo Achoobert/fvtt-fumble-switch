@@ -1,4 +1,15 @@
-import { MODULE_ID, DEFAULT_NUDGE_VALUES, DEFAULT_AFFECTED_DICE } from '~/constants';
+import {
+  MODULE_ID,
+  DIE_TYPES,
+  DEFAULT_NUDGE_VALUES,
+  DEFAULT_AFFECTED_DICE,
+  DEFAULT_FIXED_VALUES,
+  type DieType,
+} from '~/constants';
+
+const DEFAULT_FIXED_VALUES_STORE: Record<DieType, { better: number; worse: number }> = Object.fromEntries(
+  DIE_TYPES.map((d) => [ d, { ...DEFAULT_FIXED_VALUES[d] } ]),
+) as Record<DieType, { better: number; worse: number }>;
 import { FumbleSwitchSettingsMenu } from '~/ui/settings-menu';
 
 const s = () => game.settings!;
@@ -16,6 +27,7 @@ export function registerSettings(): void {
       bias: 'FUMBLE_SWITCH.settings.cheatStrategy.bias',
       nudge: 'FUMBLE_SWITCH.settings.cheatStrategy.nudge',
       threshold: 'FUMBLE_SWITCH.settings.cheatStrategy.threshold',
+      fixed: 'FUMBLE_SWITCH.settings.cheatStrategy.fixed',
     },
   });
 
@@ -86,6 +98,13 @@ export function registerSettings(): void {
     config: false,
     type: Object,
     default: DEFAULT_NUDGE_VALUES,
+  });
+
+  s().register(MODULE_ID, 'fixedValues', {
+    scope: 'world',
+    config: false,
+    type: Object,
+    default: DEFAULT_FIXED_VALUES_STORE,
   });
 
   s().register(MODULE_ID, 'affectedDice', {

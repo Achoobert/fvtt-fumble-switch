@@ -31,6 +31,10 @@ function formatModifier(info: DieDebugInfo): string {
         threshold: String(info.thresholdValue ?? '?'),
         reroll: String(info.thresholdReroll ?? '?'),
       });
+    case 'fixed':
+      return t('FUMBLE_SWITCH.debug.modifier.fixed', {
+        target: String(info.fixedTarget ?? info.finalResult),
+      });
     default:
       return '';
   }

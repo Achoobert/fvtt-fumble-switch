@@ -13,6 +13,7 @@
   "FUMBLE_SWITCH.settings.cheatStrategy.bias": "Bias (roll twice, pick best/worst)",
   "FUMBLE_SWITCH.settings.cheatStrategy.nudge": "Nudge (add/subtract modifier)",
   "FUMBLE_SWITCH.settings.cheatStrategy.threshold": "Threshold (re-roll if in worst/best N%)",
+  "FUMBLE_SWITCH.settings.cheatStrategy.fixed": "Fixed (force configured face for better / worse)",
   "FUMBLE_SWITCH.settings.positiveDirection.name": "Positive Throw Direction",
   "FUMBLE_SWITCH.settings.positiveDirection.hint": "Whether a higher or lower roll is considered better by default.",
   "FUMBLE_SWITCH.settings.positiveDirection.higher": "Higher is better",
@@ -25,13 +26,15 @@
   "FUMBLE_SWITCH.settings.debugMode.hint": "When enabled, whispers a detailed breakdown (original, modifier, final) of each manipulated die to the GM.",
   "FUMBLE_SWITCH.settings.diceSettingsMenu.name": "Dice Settings",
   "FUMBLE_SWITCH.settings.diceSettingsMenu.label": "Configure Dice",
-  "FUMBLE_SWITCH.settings.diceSettingsMenu.hint": "Configure per-die cheat settings: which dice are affected, direction overrides, and nudge values.",
+  "FUMBLE_SWITCH.settings.diceSettingsMenu.hint": "Configure per-die cheat settings: affected dice, direction overrides, nudge amounts, and fixed-strategy faces.",
   "FUMBLE_SWITCH.settingsMenu.title": "Fumble Switch - Dice Settings",
   "FUMBLE_SWITCH.settingsMenu.notes": "Configure per-die settings. Global direction:",
   "FUMBLE_SWITCH.settingsMenu.die": "Die",
   "FUMBLE_SWITCH.settingsMenu.enabled": "Enabled",
   "FUMBLE_SWITCH.settingsMenu.direction": "Direction",
   "FUMBLE_SWITCH.settingsMenu.nudgeValue": "Nudge Value",
+  "FUMBLE_SWITCH.settingsMenu.fixedBetter": "Fixed ▲",
+  "FUMBLE_SWITCH.settingsMenu.fixedWorse": "Fixed ▼",
   "FUMBLE_SWITCH.settingsMenu.higher": "Higher",
   "FUMBLE_SWITCH.settingsMenu.lower": "Lower",
   "FUMBLE_SWITCH.settingsMenu.save": "Save Changes",
@@ -42,5 +45,6 @@
   "FUMBLE_SWITCH.debug.modifier.bias": "bias → second roll {second}, kept the better",
   "FUMBLE_SWITCH.debug.modifier.nudge": "nudge {delta}",
   "FUMBLE_SWITCH.debug.modifier.threshold": "threshold {threshold} → rerolled {reroll}",
-  "FUMBLE_SWITCH.debug.modifier.thresholdSkipped": "threshold {threshold} → not triggered"
+  "FUMBLE_SWITCH.debug.modifier.thresholdSkipped": "threshold {threshold} → not triggered",
+  "FUMBLE_SWITCH.debug.modifier.fixed": "fixed → face {target}"
 }

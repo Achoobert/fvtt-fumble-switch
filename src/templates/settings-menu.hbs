@@ -7,6 +7,8 @@
         <th>{{localize "FUMBLE_SWITCH.settingsMenu.enabled"}}</th>
         <th>{{localize "FUMBLE_SWITCH.settingsMenu.direction"}}</th>
         <th>{{localize "FUMBLE_SWITCH.settingsMenu.nudgeValue"}}</th>
+        <th>{{localize "FUMBLE_SWITCH.settingsMenu.fixedBetter"}}</th>
+        <th>{{localize "FUMBLE_SWITCH.settingsMenu.fixedWorse"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -21,6 +23,8 @@
           </select>
         </td>
         <td><input type="number" name="nudge-{{die}}" value="{{nudgeValue}}" min="0" style="width: 50px;" /></td>
+        <td><input type="number" name="fixedBetter-{{die}}" value="{{fixedBetter}}" min="1" style="width: 52px;" /></td>
+        <td><input type="number" name="fixedWorse-{{die}}" value="{{fixedWorse}}" min="1" style="width: 52px;" /></td>
       </tr>
       {{/each}}
     </tbody>

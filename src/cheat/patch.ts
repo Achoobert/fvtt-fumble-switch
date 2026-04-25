@@ -1,5 +1,7 @@
 import type { DieType } from '~/constants';
-import { getCheatConfig, isDieAffected, getPositiveDirection, getNudgeValue } from './state';
+import {
+  getCheatConfig, isDieAffected, getPositiveDirection, getNudgeValue, getFixedValues,
+} from './state';
 import {
   applyStrategy, resolveDirection, type DieResult, type DieDebugInfo, type StrategyContext,
 } from './strategies';
@@ -50,16 +52,18 @@ export function patchRollEvaluate(): void {
     const direction = resolveDirection(config.state, positiveDirection);
     if (!direction) return result;
 
+    const originalResult = result.result;
+    // Wrap single result in array for strategy functions (they mutate in place)
+    const wrapper: DieResult[] = [ result as DieResult ];
+    const fixed = getFixedValues(dieType);
     const context: StrategyContext = {
       direction,
       faces,
       nudgeValue: getNudgeValue(dieType),
       thresholdPercent: config.thresholdPercent,
+      fixedBetter: fixed.better,
+      fixedWorse: fixed.worse,
     };
-
-    const originalResult = result.result;
-    // Wrap single result in array for strategy functions (they mutate in place)
-    const wrapper: DieResult[] = [ result as DieResult ];
     const debug = applyStrategy(config.strategy, wrapper, context);
 
     // Mark this die term as cheated for explicit mode detection

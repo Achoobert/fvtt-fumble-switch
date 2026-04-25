@@ -3,6 +3,7 @@ import { applyFull } from './full';
 import { applyBias } from './bias';
 import { applyNudge } from './nudge';
 import { applyThreshold } from './threshold';
+import { applyFixed } from './fixed';
 
 export type CheatDirection = 'better' | 'worse';
 
@@ -16,6 +17,8 @@ export interface StrategyContext {
   faces: number;
   nudgeValue: number;
   thresholdPercent: number;
+  fixedBetter: number;
+  fixedWorse: number;
 }
 
 export interface DieDebugInfo {
@@ -30,6 +33,7 @@ export interface DieDebugInfo {
   thresholdValue?: number;
   thresholdReroll?: number;
   thresholdTriggered?: boolean;
+  fixedTarget?: number;
 }
 
 export function resolveDirection(state: CheatState, positiveDirection: PositiveDirection): CheatDirection | null {
@@ -46,6 +50,7 @@ export interface StrategyDebug {
   thresholdValue?: number;
   thresholdReroll?: number;
   thresholdTriggered?: boolean;
+  fixedTarget?: number;
 }
 
 export function applyStrategy(
@@ -63,6 +68,8 @@ export function applyStrategy(
       return applyNudge(results, context);
     case 'threshold':
       return applyThreshold(results, context);
+    case 'fixed':
+      return applyFixed(results, context);
     default:
       return {};
   }
