@@ -13,6 +13,7 @@
   "FUMBLE_SWITCH.settings.cheatStrategy.bias": "Stronniczość (rzuć dwukrotnie, wybierz lepszy/gorszy)",
   "FUMBLE_SWITCH.settings.cheatStrategy.nudge": "Korekta (dodaj/odejmij modyfikator)",
   "FUMBLE_SWITCH.settings.cheatStrategy.threshold": "Próg (przerzuć, jeśli wynik w najgorszych/najlepszych N%)",
+  "FUMBLE_SWITCH.settings.cheatStrategy.fixed": "Stały wynik (wymuś skonfigurowaną ściankę dla lepiej / gorzej)",
   "FUMBLE_SWITCH.settings.positiveDirection.name": "Kierunek pozytywnego rzutu",
   "FUMBLE_SWITCH.settings.positiveDirection.hint": "Czy wyższy czy niższy wynik rzutu jest domyślnie uznawany za lepszy.",
   "FUMBLE_SWITCH.settings.positiveDirection.higher": "Wyższy jest lepszy",
@@ -25,13 +26,15 @@
   "FUMBLE_SWITCH.settings.debugMode.hint": "Gdy włączony, szczegółowy rozkład każdego zmanipulowanego rzutu (oryginał, modyfikator, wynik) jest wysyłany szeptem do MG.",
   "FUMBLE_SWITCH.settings.diceSettingsMenu.name": "Ustawienia kości",
   "FUMBLE_SWITCH.settings.diceSettingsMenu.label": "Konfiguruj kości",
-  "FUMBLE_SWITCH.settings.diceSettingsMenu.hint": "Skonfiguruj ustawienia oszustwa per kość: które kości są modyfikowane, nadpisania kierunku i wartości korekty.",
+  "FUMBLE_SWITCH.settings.diceSettingsMenu.hint": "Skonfiguruj ustawienia oszustwa per kość: modyfikowane kości, nadpisania kierunku, korekty i ścianki strategii stałej.",
   "FUMBLE_SWITCH.settingsMenu.title": "Fumble Switch - Ustawienia kości",
   "FUMBLE_SWITCH.settingsMenu.notes": "Konfiguruj ustawienia per kość. Globalny kierunek:",
   "FUMBLE_SWITCH.settingsMenu.die": "Kość",
   "FUMBLE_SWITCH.settingsMenu.enabled": "Aktywna",
   "FUMBLE_SWITCH.settingsMenu.direction": "Kierunek",
   "FUMBLE_SWITCH.settingsMenu.nudgeValue": "Wartość korekty",
+  "FUMBLE_SWITCH.settingsMenu.fixedBetter": "Stała ▲",
+  "FUMBLE_SWITCH.settingsMenu.fixedWorse": "Stała ▼",
   "FUMBLE_SWITCH.settingsMenu.higher": "Wyższy",
   "FUMBLE_SWITCH.settingsMenu.lower": "Niższy",
   "FUMBLE_SWITCH.settingsMenu.save": "Zapisz zmiany",
@@ -42,5 +45,6 @@
   "FUMBLE_SWITCH.debug.modifier.bias": "stronniczość → drugi rzut {second}, wybrano lepszy",
   "FUMBLE_SWITCH.debug.modifier.nudge": "korekta {delta}",
   "FUMBLE_SWITCH.debug.modifier.threshold": "próg {threshold} → przerzucono {reroll}",
-  "FUMBLE_SWITCH.debug.modifier.thresholdSkipped": "próg {threshold} → nie zadziałał"
+  "FUMBLE_SWITCH.debug.modifier.thresholdSkipped": "próg {threshold} → nie zadziałał",
+  "FUMBLE_SWITCH.debug.modifier.fixed": "stały → ścianka {target}"
 }

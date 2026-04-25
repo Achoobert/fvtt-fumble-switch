@@ -10,6 +10,7 @@ declare global {
     'fumble-switch.debugMode': boolean;
     'fumble-switch.positiveDirectionOverrides': Record<string, PositiveDirection>;
     'fumble-switch.nudgeValues': Record<DieType, number>;
+    'fumble-switch.fixedValues': Record<DieType, { better: number; worse: number }>;
     'fumble-switch.affectedDice': Record<DieType, boolean>;
     'fumble-switch.cheatStatePlayers': CheatState;
     'fumble-switch.cheatStateGm': CheatState;
