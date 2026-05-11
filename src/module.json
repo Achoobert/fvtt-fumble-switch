@@ -2,7 +2,7 @@
   "id": "fumble-switch",
   "title": "Fumble Switch (Cheated Rolls)",
   "description": "GM tool for real-time dice roll manipulation with multiple cheat strategies.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "authors": [
     {
       "name": "Radoslaw Klos",
