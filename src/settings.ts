@@ -21,7 +21,7 @@ export function registerSettings(): void {
     scope: 'world',
     config: true,
     type: String,
-    default: 'bias',
+    default: 'full',
     choices: {
       full: 'FUMBLE_SWITCH.settings.cheatStrategy.full',
       bias: 'FUMBLE_SWITCH.settings.cheatStrategy.bias',
